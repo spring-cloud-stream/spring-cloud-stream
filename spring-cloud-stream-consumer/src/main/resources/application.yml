@@ -1,0 +1,16 @@
+server:
+  port: 7889
+spring:
+  application:
+    name: consumer
+  cloud:
+    stream:
+      kafka:
+        binder:
+          brokers: 192.168.110.130:9092
+      #          auto-create-topics: true
+      bindings:
+        #input是接收，注意这里不能再像前面一样写output了
+        input:
+          destination: stream-demo
+          group: group
