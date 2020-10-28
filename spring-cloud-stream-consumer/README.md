@@ -1,5 +1,20 @@
 # 实现说明
 ## 仿照源码创建接收通道
+```text
+类及方法调用流程:
+BindableProxyFactory#afterPropertiesSet 
+                       |
+                       V
+SubscribableChannelBindingTargetFactory#createInput(String)
+                       |
+                       V
+CompositeMessageChannelConfigurer#configureInputChannel(MessageChannel, String)
+                       |
+                       V
+ AbstractBindableProxyFactory#createAndBindInputs(BindingService)
+```
+
+
 1.org.springframework.cloud.stream.messaging.Sink
 - 根据`Sink`接口中的`input()`方法返回值`SubscribableChannel`，基于`SubscribableChannel`实现订阅通道
 - 找到Stream相关的实现为`DirectWithAttributesChannel`
@@ -10,7 +25,12 @@
 3.org.springframework.cloud.stream.binding.SubscribableChannelBindingTargetFactory 
 - 仿照`SubscribableChannelBindingTargetFactory#createInput(String)`创建接收通道
 - `DirectWithAttributesChannel`类为设置通道参数类，需要修改`setAttribute("type", topicName)`
-- 自己创建不需要注册到Spring应用上下文中
+- 自己创建不需要注册到Spring应用上下文中,因此不需要添加
+```
+if (context != null && !context.containsBean(name)) {
+    context.registerBean(name, DirectWithAttributesChannel.class, () -> subscribableChannel);
+}
+```
 - 查找`SubscribableChannelBindingTargetFactory#createInput(String)`调用类为`BindableProxyFactory`
 
 4.org.springframework.cloud.stream.binding.BindableProxyFactory
